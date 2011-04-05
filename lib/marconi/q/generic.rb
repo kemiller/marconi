@@ -1,7 +1,7 @@
 require 'bunny'
 require 'singleton'
 
-module Q
+module Marconi::Q
   module Generic
 
     def self.included(base)
