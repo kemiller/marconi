@@ -34,7 +34,7 @@ module Marconi
 
       e = Envelope.new { |e| e.send(current_operation, self) }
       topic = "#{Rails.application_name}.#{self.class.master_model_name}.#{current_operation}"
-      Q::Inbound.instance.publish(e, :topic => topic)
+      Marconi.inbound.publish(e, :topic => topic)
     end
 
     private

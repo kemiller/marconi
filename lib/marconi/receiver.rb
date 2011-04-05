@@ -19,9 +19,9 @@ module Marconi
 
       def log_message_action(amqp_mesg, info_mesg)
         fmt = "%28s %9s %s %s" %
-        [amqp_mesg[:meta][:guid],
-          amqp_mesg[:meta][:operation],
-          Time.now().to_s, info_mesg]
+          [amqp_mesg[:meta][:guid],
+           amqp_mesg[:meta][:operation],
+           Time.now().to_s, info_mesg]
         logger.debug(fmt)
         puts fmt unless Rails.env.test?
       end
@@ -29,7 +29,7 @@ module Marconi
       def listen(max = nil)
         q_name = "#{application_name}.#{self.name.underscore}"
         topic = "#.#{name.underscore}.#"
-        Q::Outbound.instance.subscribe(q_name, :key => topic, :message_max => max) do |amqp_msg|
+        Marconi.outbound.subscribe(q_name, :key => topic, :message_max => max) do |amqp_msg|
           e = Envelope.from_xml(amqp_msg[:payload])
           suppress_broadcasts do
             e.messages.each do |message|
