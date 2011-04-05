@@ -27,9 +27,9 @@ module Marconi
       end
 
       def listen(max = nil)
-        q_name = "#{application_name}.#{self.name.underscore}"
+        q_name = "#{Marconi.application_name}.#{self.name.underscore}"
         topic = "#.#{name.underscore}.#"
-        Marconi.outbound.subscribe(q_name, :key => topic, :message_max => max) do |amqp_msg|
+        exchange.subscribe(q_name, :key => topic, :message_max => max) do |amqp_msg|
           e = Envelope.from_xml(amqp_msg[:payload])
           suppress_broadcasts do
             e.messages.each do |message|
@@ -67,9 +67,8 @@ module Marconi
         end
       end
 
-      # it would be nice if this were not rails-specific
-      def application_name
-        Rails.application.class.parent_name.downcase
+      def exchange 
+        Marconi.outbound
       end
     end
 

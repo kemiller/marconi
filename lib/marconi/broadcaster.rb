@@ -33,11 +33,15 @@ module Marconi
       puts fmt unless Rails.env.test?
 
       e = Envelope.new { |e| e.send(current_operation, self) }
-      topic = "#{Rails.application_name}.#{self.class.master_model_name}.#{current_operation}"
-      Marconi.inbound.publish(e, :topic => topic)
+      topic = "#{Marconi.application_name}.#{self.class.master_model_name}.#{current_operation}"
+      exchange.publish(e, :topic => topic)
     end
 
     private
+
+    def exchange
+      Marconi.inbound
+    end
 
     def current_operation
       id_changed? ? 'create' : 'update'

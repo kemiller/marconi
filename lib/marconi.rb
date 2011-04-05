@@ -14,6 +14,10 @@ module Marconi
   def error
     Q::Error.instance
   end
+
+  def application_name
+    inbound.name
+  end
 end
 
 require 'marconi/q/generic'
