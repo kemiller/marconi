@@ -6,15 +6,33 @@ module Q
 
     def self.included(base)
       base.send(:include, Singleton)
-      base.cattr_accessor :always_reconnect_p
+      base.cattr_accessor :keepalive, :bunny_params, :name
     end
 
     def exchange_name
       self.class.exchange_name
     end
 
-    def always_reconnect?
-      self.class.always_reconnect_p
+    def config
+      return if @configured
+      config_file = "#{Rails.root}/config/queues.yml"
+
+      unless File.exists?(config_file)
+        raise "Could not find #{config_file}"
+      end
+
+      hash = YAML.load_file(config_file)
+      params = hash[Rails.env]
+
+      unless params
+        raise "No config specified for #{Rails.env}"
+      end
+
+      self.name = params['name'] || raise("Wait... Who am I?")
+      self.keepalive = !!params['keepalive']
+      self.bunny_params = params['bunny'] || {}
+
+      @configured = true
     end
 
     DEFAULT_PUBLISH_OPTIONS = {
@@ -22,13 +40,18 @@ module Q
       # If set to true, the server will return an unroutable message with a Return method.
       # If set to false, the server silently drops the message.
       :mandatory => true,
-      # Tells the server how to react if the message cannot be routed to a queue consumer immediately.
-      # If set to true, the server will return an undeliverable message with a Return method.
-      # If set to false, the server will queue the message, but with no guarantee that it will ever be consumed.
+
+      # Tells the server how to react if the message cannot be routed to a
+      # queue consumer immediately.  If set to true, the server will return an
+      # undeliverable message with a Return method.  If set to false, the
+      # server will queue the message, but with no guarantee that it will ever
+      # be consumed.
       :immediate => false,
-      # Tells the server whether to persist the message.
-      # If set to true, the message will be persisted to disk and not lost if the server restarts.
-      # Setting to true incurs a performance penalty as there is an extra cost associated with disk access.
+
+      # Tells the server whether to persist the message.  If set to true, the
+      # message will be persisted to disk and not lost if the server restarts.
+      # Setting to true incurs a performance penalty as there is an extra cost
+      # associated with disk access.
       :persistent => true
     }
 
@@ -90,29 +113,23 @@ module Q
     end
 
     def connect(reconnect = false)
-      reconnect = true if always_reconnect_p
+      config
+      reconnect = true unless keepalive
       @bunny.stop if reconnect && connected?
       if reconnect || !connected?
-        @bunny =
-          Bunny.new(
-# TBD - Load these params from a phase-dependent YML file
-            #:host => ,
-            #:port => ,
-            #:vhost => ,
-            #:user => ,
-            #:pass => ,
-            #:logfile => ,
-            #:logging => true
-          )
+        @bunny = Bunny.new(bunny_params)
         result = @bunny.start
         if result == :connected
           @exchange =
             @bunny.exchange(
               exchange_name,
+
               # Topic queues are broadcast queues that allow wildcard subscriptions
               :type => :topic,
+
               # Durable exchanges remain active when a server restarts.
-              # Non-durable exchanges (transient exchanges) are purged if/when a server restarts.
+              # Non-durable exchanges (transient exchanges) are purged if/when
+              # a server restarts.
               :durable => true
             )
           result
