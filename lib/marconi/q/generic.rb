@@ -6,7 +6,7 @@ module Marconi::Q
 
     def self.included(base)
       base.send(:include, Singleton)
-      base.cattr_accessor :keepalive, :bunny_params, :name
+      base.cattr_accessor :keepalive, :bunny_params, :name, :listeners, :short_name
     end
 
     def exchange_name
@@ -29,8 +29,10 @@ module Marconi::Q
       end
 
       self.name = params['name'] || raise("Wait... Who am I?")
+      self.short_name = params['short_name'] || raise("w8... hu m i?")
       self.keepalive = !!params['keepalive']
       self.bunny_params = params['bunny'] || {}
+      self.listeners = params['listeners'] || []
 
       @configured = true
     end
