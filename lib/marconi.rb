@@ -15,21 +15,20 @@ module Marconi
     Q::Error.instance
   end
 
+  def config
+    @config ||= Config.new
+  end
+
   def application_name
-    # there should be a better way to get the config
-    inbound.config
-    inbound.name
+    config.name
   end
 
   def short_application_name
-    inbound.config
-    inbound.short_name
+    config.short_name
   end
 
   def listen
-    inbound.config
-
-    inbound.listeners.each do |class_name|
+    config.listeners.each do |class_name|
       class_name.constantize.listen
     end
   end
@@ -39,6 +38,7 @@ require 'marconi/q/generic'
 require 'marconi/q/outbound'
 require 'marconi/q/inbound'
 require 'marconi/q/error'
+require 'marconi/config'
 require 'marconi/envelope'
 require 'marconi/receiver'
 require 'marconi/broadcaster'

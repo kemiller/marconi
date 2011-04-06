@@ -6,35 +6,22 @@ module Marconi::Q
 
     def self.included(base)
       base.send(:include, Singleton)
-      base.cattr_accessor :keepalive, :bunny_params, :name, :listeners, :short_name
     end
 
     def exchange_name
       self.class.exchange_name
     end
 
-    def config
-      return if @configured
-      config_file = "#{Rails.root}/config/queues.yml"
+    def name
+      Marconi.config.name
+    end
 
-      unless File.exists?(config_file)
-        raise "Could not find #{config_file}"
-      end
+    def keepalive
+      Marconi.config.keepalive
+    end
 
-      hash = YAML.load_file(config_file)
-      params = hash[Rails.env]
-
-      unless params
-        raise "No config specified for #{Rails.env}"
-      end
-
-      self.name = params['name'] || raise("Wait... Who am I?")
-      self.short_name = params['short_name'] || raise("w8... hu m i?")
-      self.keepalive = !!params['keepalive']
-      self.bunny_params = params['bunny'] || {}
-      self.listeners = params['listeners'] || []
-
-      @configured = true
+    def bunny_params
+      Marconi.config.bunny_params
     end
 
     DEFAULT_PUBLISH_OPTIONS = {
@@ -115,7 +102,6 @@ module Marconi::Q
     end
 
     def connect(reconnect = false)
-      config
       reconnect = true unless keepalive
       @bunny.stop if reconnect && connected?
       if reconnect || !connected?
