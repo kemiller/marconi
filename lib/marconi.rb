@@ -16,7 +16,14 @@ module Marconi
   end
 
   def application_name
+    # there should be a better way to get the config
+    inbound.config
     inbound.name
+  end
+
+  def short_application_name
+    inbound.config
+    inbound.short_name
   end
 
   def listen
