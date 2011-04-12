@@ -59,14 +59,6 @@ module Marconi
         @handlers = nil
       end
 
-      def test_hook
-        if @test_hook
-          block = @test_hook
-          @test_hook = nil
-          block.call
-        end
-      end
-
       def exchange 
         Marconi.outbound
       end
