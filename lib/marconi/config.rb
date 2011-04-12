@@ -17,7 +17,9 @@ module Marconi
       self.listeners = params['listeners'] || []
       self.bunny_params = params['bunny'] && params['bunny'][Rails.env]
 
-      unless bunny_params
+      if bunny_params
+        self.bunny_params.symbolize_keys!
+      else
         puts "Warning: No config specified for #{Rails.env}"
         self.bunny_params = {}
       end
