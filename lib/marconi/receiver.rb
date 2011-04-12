@@ -4,9 +4,18 @@ module Marconi
 
     def self.included(base)
       base.extend ClassMethods
+      base.setup
     end
 
     module ClassMethods
+      
+      def setup
+        @master_model_name = self.name.underscore
+      end
+
+      def master_model_name
+        @master_model_name
+      end
 
       def register(operation, &block)
         self.handlers[operation] ||= []
@@ -27,8 +36,8 @@ module Marconi
       end
 
       def listen(max = nil)
-        q_name = "#{Marconi.application_name}.#{self.name.underscore}"
-        topic = "#.#{name.underscore}.#"
+        q_name = "#{Marconi.application_name}.#{self.master_model_name}"
+        topic = "#.#{self.master_model_name}.#"
         exchange.subscribe(q_name, :key => topic, :message_max => max) do |amqp_msg|
           e = Envelope.from_xml(amqp_msg[:payload])
           suppress_broadcasts do
