@@ -103,7 +103,7 @@ module Marconi::Q
 
     def connect(reconnect = false)
       reconnect = true unless keepalive
-      @bunny.stop if reconnect && connected?
+      @bunny.stop if reconnect && connected? rescue nil
       if reconnect || !connected?
         @bunny = Bunny.new(bunny_params)
         result = @bunny.start

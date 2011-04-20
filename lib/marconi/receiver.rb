@@ -46,11 +46,7 @@ module Marconi
               operation = message[:meta][:operation]
               next unless self.handlers[operation]
               self.handlers[operation].each do |h|
-                fork do 
-                  $0 += " handling #{operation}..."
-                  h.call(message)
-                end
-                Process.waitall
+                h.call(message)
               end
             end
           end
