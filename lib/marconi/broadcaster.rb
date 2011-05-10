@@ -34,7 +34,7 @@ module Marconi
 
       e = Envelope.new { |e| e.send(current_operation, self) }
       topic = "#{Marconi.application_name}.#{self.class.master_model_name}.#{current_operation}"
-      exchange.publish(e, :topic => topic)
+      exchange.publish(e.to_s, :topic => topic)
     end
 
     private
