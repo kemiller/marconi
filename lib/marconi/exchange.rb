@@ -55,7 +55,7 @@ module Marconi
       rescue Exception => e
         # TODO set up a logger so we can report this somewhere
         # TODO notify
-        if Marconi.backup_queue_class
+        if Marconi.backup_queue_class && !options[:recovering]
           Marconi.backup_queue_class.create!(:exchange_name => exchange_name,
                                              :topic => topic,
                                              :body => msg)

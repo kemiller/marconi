@@ -6,15 +6,15 @@ module Marconi
   attr_accessor :backup_queue_class
 
   def inbound
-    @inbound ||= Exchange.new('inbound')
+    @inbound ||= exchange('inbound')
   end
 
   def outbound
-    @outbound ||= Exchange.new('outbound')
+    @outbound ||= exchange('outbound')
   end
 
   def error
-    @error ||= Exchange.new('error')
+    @error ||= exchange('error')
   end
 
   def config
@@ -49,6 +49,22 @@ module Marconi
   rescue Interrupt
     Process.kill("-INT",0) # interrupt the whole process group
   end
+
+  def run_recovery_loop
+    if backup_queue_class
+      backup_queue_class.find_each do |bc|
+        if exchange(bc.exchange_name).publish(bc.body, :topic => bc.topic, :recovering => true)
+          bc.destroy
+        end
+      end
+    end
+  end
+
+  def exchange(name)
+    @registry ||= {}
+    @registry[name] ||= Exchange.new(name)
+  end
+  
 end
 
 require 'marconi/exchange'
