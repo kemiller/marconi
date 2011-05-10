@@ -8,6 +8,8 @@ module Marconi::Q
       base.send(:include, Singleton)
     end
 
+    attr_accessor :backup_queue_class
+
     def exchange_name
       self.class.exchange_name
     end
@@ -46,12 +48,24 @@ module Marconi::Q
 
     # Example: Q::Inbound.instance.publish("Howdy!", :topic => 'deals.member.create')
     def publish(msg, options = {})
-      connect
       topic = ensure_valid_publish_topic(options)
-      @exchange.publish(msg, DEFAULT_PUBLISH_OPTIONS.merge(:key => topic))
-      msg = @bunny.returned_message
-      # We could raise here, but AFAIK all topics will have some durable queues, so there's no point
-      msg[:payload] == :no_return
+      begin
+        connect
+        @exchange.publish(msg, DEFAULT_PUBLISH_OPTIONS.merge(:key => topic))
+        retmsg = @bunny.returned_message
+        # We could raise here, but AFAIK all topics will have some durable queues, so there's no point
+        raise "Invalid return payload" unless retmsg[:payload] == :no_return
+        true
+      rescue Exception => e
+        # TODO set up a logger so we can report this somewhere
+        # TODO notify
+        if backup_queue_class
+          backup_queue_class.create!(:exchange_name => exchange_name,
+                                     :topic => topic,
+                                     :body => msg)
+        end
+        false
+      end
     end
 
     # Example: Q::Inbound.instance.subscribe('foo_q', :key => 'deals.member.*') { |msg| puts msg[:payload] }
