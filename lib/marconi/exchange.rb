@@ -1,17 +1,14 @@
 require 'bunny'
-require 'singleton'
 
-module Marconi::Q
-  module Generic
+module Marconi
+  class Exchange
 
-    def self.included(base)
-      base.send(:include, Singleton)
+    def initialize(exchange_name)
+      @exchange_name = exchange_name
     end
 
-    attr_accessor :backup_queue_class
-
     def exchange_name
-      self.class.exchange_name
+      @exchange_name
     end
 
     def name
@@ -46,35 +43,34 @@ module Marconi::Q
       :persistent => true
     }
 
-    # Example: Q::Inbound.instance.publish("Howdy!", :topic => 'deals.member.create')
+    # Example: Marconi.inbound.publish("Howdy!", :topic => 'deals.member.create')
     def publish(msg, options = {})
       topic = ensure_valid_publish_topic(options)
       begin
         connect
         @exchange.publish(msg, DEFAULT_PUBLISH_OPTIONS.merge(:key => topic))
         retmsg = @bunny.returned_message
-        # We could raise here, but AFAIK all topics will have some durable queues, so there's no point
         raise "Invalid return payload" unless retmsg[:payload] == :no_return
         true
       rescue Exception => e
         # TODO set up a logger so we can report this somewhere
         # TODO notify
-        if backup_queue_class
-          backup_queue_class.create!(:exchange_name => exchange_name,
-                                     :topic => topic,
-                                     :body => msg)
+        if Marconi.backup_queue_class
+          Marconi.backup_queue_class.create!(:exchange_name => exchange_name,
+                                             :topic => topic,
+                                             :body => msg)
         end
         false
       end
     end
 
-    # Example: Q::Inbound.instance.subscribe('foo_q', :key => 'deals.member.*') { |msg| puts msg[:payload] }
+    # Example: Marconi.inbound.subscribe('foo_q', :key => 'deals.member.*') { |msg| puts msg[:payload] }
     def subscribe(q_name, options = {}, &block)
       q, key = get_q(q_name, options)
       q.subscribe(options, &block)
     end
 
-    # Example: Q::Inbound.instance.pop('foo_q', :key => 'deals.member.*')
+    # Example: Marconi.inbound.pop('foo_q', :key => 'deals.member.*')
     def pop(q_name, options = {})
       q, key = get_q(q_name, options)
       msg = q.pop[:payload]
@@ -82,7 +78,7 @@ module Marconi::Q
     end
 
     unless Rails.env.production? # HARD CORE
-      # Example: Q::Inbound.instance.purge_q('foo_q')
+      # Example: Marconi.inbound.purge_q('foo_q')
       # Use judiciously - this tosses all messages in the Q!
       def purge_q(q_name)
         connect
@@ -96,16 +92,10 @@ module Marconi::Q
         raise
       end
 
-      # Example: Q::Inbound.instance.nuke_q('foo_q')
+      # Example: Marconi.inbound.nuke_q('foo_q')
       # Use judiciously - this tosses all messages in the Q *and* nukes it
       def nuke_q(q_name)
         generic_nuke(:queue, q_name) 
-      end
-
-      # Example: Q::Inbound.instance.nuke_exchange('outbound')
-      # You probably don't ever want to do this: it's only here for my edification
-      def nuke_exchange(e_name)
-        generic_nuke(:exchange, e_name) 
       end
     end
 

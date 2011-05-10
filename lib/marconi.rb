@@ -3,16 +3,18 @@ module Marconi
 
   extend self
 
+  attr_accessor :backup_queue_class
+
   def inbound
-    Q::Inbound.instance
+    @inbound ||= Exchange.new('inbound')
   end
 
   def outbound
-    Q::Outbound.instance
+    @outbound ||= Exchange.new('outbound')
   end
 
   def error
-    Q::Error.instance
+    @error ||= Exchange.new('error')
   end
 
   def config
@@ -49,10 +51,7 @@ module Marconi
   end
 end
 
-require 'marconi/q/generic'
-require 'marconi/q/outbound'
-require 'marconi/q/inbound'
-require 'marconi/q/error'
+require 'marconi/exchange'
 require 'marconi/config'
 require 'marconi/envelope'
 require 'marconi/receiver'
