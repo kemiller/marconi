@@ -3,7 +3,11 @@ module Marconi
 
   extend self
 
-  attr_accessor :backup_queue_class
+  attr_accessor :backup_queue_class_name
+
+  def backup_queue_class
+    eval(backup_queue_class_name)
+  end
 
   def inbound
     @inbound ||= exchange('inbound')
