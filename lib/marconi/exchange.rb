@@ -53,8 +53,7 @@ module Marconi
         raise "Invalid return payload" unless retmsg[:payload] == :no_return
         true
       rescue Exception => e
-        # TODO set up a logger so we can report this somewhere
-        # TODO notify
+        Marconi.log(e)
         if Marconi.backup_queue_class && !options[:recovering]
           Marconi.backup_queue_class.create!(:exchange_name => exchange_name,
                                              :topic => topic,

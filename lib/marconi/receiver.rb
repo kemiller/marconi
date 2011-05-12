@@ -32,7 +32,7 @@ module Marconi
            amqp_mesg[:meta][:operation],
            Time.now().to_s, info_mesg]
         logger.debug(fmt)
-        puts fmt unless Rails.env.test?
+        Marconi.log(fmt)
       end
 
       def listen(max = nil)

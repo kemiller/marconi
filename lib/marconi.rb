@@ -3,8 +3,10 @@ module Marconi
 
   extend self
 
-  attr_accessor :backup_queue_class_name
+  attr_accessor :backup_queue_class_name, :logger
 
+  # this uses eval to get the class from its name because
+  # otherwise rails class reloading in dev will screw everything up
   def backup_queue_class
     eval(backup_queue_class_name)
   end
@@ -68,7 +70,11 @@ module Marconi
     @registry ||= {}
     @registry[name] ||= Exchange.new(name)
   end
-  
+
+  def log(message)
+    logger.info(message) if logger
+  end
+
 end
 
 require 'marconi/exchange'

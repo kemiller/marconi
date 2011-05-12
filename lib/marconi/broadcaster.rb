@@ -30,7 +30,7 @@ module Marconi
 
       fmt = "%28s %9s %s Published" % [guid,current_operation,Time.now.to_s]
       logger.debug fmt
-      puts fmt unless Rails.env.test?
+      Marconi.log(fmt)
 
       e = Envelope.new { |e| e.send(current_operation, self) }
       topic = "#{Marconi.application_name}.#{self.class.master_model_name}.#{current_operation}"
