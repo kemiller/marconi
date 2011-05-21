@@ -12,15 +12,15 @@ module Marconi
   end
 
   def inbound
-    @inbound ||= exchange('inbound')
+    @inbound ||= exchange('marconi.events.inbound')
   end
 
   def outbound
-    @outbound ||= exchange('outbound')
+    @outbound ||= exchange('marconi.events.outbound')
   end
 
   def error
-    @error ||= exchange('error')
+    @error ||= exchange('marconi.events.error')
   end
 
   def config
