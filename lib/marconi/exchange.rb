@@ -50,7 +50,7 @@ module Marconi
         connect
         @exchange.publish(msg, DEFAULT_PUBLISH_OPTIONS.merge(:key => topic))
         retmsg = @bunny.returned_message
-        raise "Invalid return payload" unless retmsg[:payload] == :no_return
+        raise "Invalid return payload: #{retmsg[:payload]}" unless retmsg[:payload] == :no_return
         true
       rescue Exception => e
         Marconi.log(e)
