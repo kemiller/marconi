@@ -44,6 +44,10 @@ module Marconi
       add_message(model, :update)
     end
 
+    def destroy(model)
+      add_message(model, :destroy)
+    end
+
     def override(old_guid, model)
       add_message(model, :override, old_guid)
     end
