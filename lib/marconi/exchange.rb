@@ -76,26 +76,24 @@ module Marconi
       msg == :queue_empty ? nil : msg
     end
 
-    unless Rails.env.production? # HARD CORE
-      # Example: Marconi.inbound.purge_q('foo_q')
-      # Use judiciously - this tosses all messages in the Q!
-      def purge_q(q_name)
-        connect
-        unless q_name.blank?
-          if o = exists?(:queue, q_name)
-            o.purge
-          end
+    # Example: Marconi.inbound.purge_q('foo_q')
+    # Use judiciously - this tosses all messages in the Q!
+    def purge_q(q_name)
+      connect
+      unless q_name.blank?
+        if o = exists?(:queue, q_name)
+          o.purge
         end
-      rescue Bunny::ForcedChannelCloseError
-        connect(true) # Connection is fucked after this error, so it must be refreshed
-        raise
       end
+    rescue Bunny::ForcedChannelCloseError
+      connect(true) # Connection is fucked after this error, so it must be refreshed
+      raise
+    end
 
-      # Example: Marconi.inbound.nuke_q('foo_q')
-      # Use judiciously - this tosses all messages in the Q *and* nukes it
-      def nuke_q(q_name)
-        generic_nuke(:queue, q_name) 
-      end
+    # Example: Marconi.inbound.nuke_q('foo_q')
+    # Use judiciously - this tosses all messages in the Q *and* nukes it
+    def nuke_q(q_name)
+      generic_nuke(:queue, q_name) 
     end
 
     private

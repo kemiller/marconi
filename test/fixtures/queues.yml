@@ -1,0 +1,8 @@
+
+name: gem
+short_name: gm
+listeners: [Person]
+keepalive: false
+bunny:
+  test:
+

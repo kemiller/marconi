@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/kemiller/marconi'
 
   s.add_dependency('bunny','0.6.0')
+  s.add_dependency('activesupport')
   s.add_development_dependency 'mocha'
 
   # Include everything in the lib folder

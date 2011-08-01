@@ -5,6 +5,10 @@ module Marconi
 
   attr_accessor :backup_queue_class_name, :logger
 
+  def init(config_file, env)
+    @config = Config.new(config_file, env)
+  end
+
   # this uses eval to get the class from its name because
   # otherwise rails class reloading in dev will screw everything up
   def backup_queue_class

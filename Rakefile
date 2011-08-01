@@ -1,4 +1,14 @@
 require 'rubygems/package_task'
+require 'rake/testtask'
+
+task :default => [:test]
+
+desc 'Tests'
+Rake::TestTask.new(:test) do |t|
+        t.libs << "test"
+        t.test_files = Dir.glob("test/**/test_*.rb")
+        t.verbose = true
+end
 
 spec = Gem::Specification.load(Dir['.gemspec'].first)
 gem = Gem::PackageTask.new(spec)

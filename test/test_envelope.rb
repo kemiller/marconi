@@ -1,7 +1,7 @@
 
 require 'test_helper'
 
-class EnvelopeTest < ActiveSupport::TestCase
+class EnvelopeTest < Test::Unit::TestCase
 
   should "create an envelope with a topic" do
     e = Marconi::Envelope.new(:timestamp => @seed_time, :topic => "foo")
@@ -11,7 +11,7 @@ class EnvelopeTest < ActiveSupport::TestCase
   context "adding messages" do
     setup do
       @seed_time = Time.now.utc
-      @person = Factory(:person)
+      @person = Person.new
       @template_message = {
         :meta => { :operation => nil, :guid => @person.guid, :version => @person.version, :timestamp => @seed_time },
         :data => HashWithIndifferentAccess.new(@person.attributes)
@@ -85,9 +85,9 @@ class EnvelopeTest < ActiveSupport::TestCase
       message_hash = { :headers => { :topic => "idauth.person.create" },
         :payload => [payload] }
       message_xml = message_hash.to_xml
-      Marconi::Envelope = Marconi::Envelope.from_xml(message_xml)
-      assert_equal 'idauth.person.create', Marconi::Envelope.topic
-      assert_soft_equal([payload], Marconi::Envelope.messages)
+      envelope = Marconi::Envelope.from_xml(message_xml)
+      assert_equal 'idauth.person.create', envelope.topic
+      assert_soft_equal([payload], envelope.messages)
     end
     
   end

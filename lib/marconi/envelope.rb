@@ -1,4 +1,7 @@
 
+require 'active_support/core_ext/hash/indifferent_access'
+require 'active_support/core_ext/hash/conversions'
+require 'marconi/smart_xml'
 
 module Marconi
   class Envelope
