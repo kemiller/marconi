@@ -1,5 +1,6 @@
 require 'rubygems/package_task'
 require 'rake/testtask'
+require 'pp'
 
 task :default => [:test]
 
@@ -16,6 +17,7 @@ gem.define
 
 desc "Push gem to rubygems.org"
 task :push => :gem do
-  sh "gem push #{gem.package_dir}/#{gem.gem_file}"
+	pp gem
+  sh "gem push #{gem.package_dir}/#{gem.name}.gem"
 end
 
