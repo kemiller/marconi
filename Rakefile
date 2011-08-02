@@ -10,7 +10,7 @@ Rake::TestTask.new(:test) do |t|
         t.verbose = true
 end
 
-spec = Gem::Specification.load(Dir['.gemspec'].first)
+spec = Gem::Specification.load(Dir['*.gemspec'].first)
 gem = Gem::PackageTask.new(spec)
 gem.define
 

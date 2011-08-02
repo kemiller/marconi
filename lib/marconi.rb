@@ -81,6 +81,7 @@ module Marconi
 
 end
 
+require 'marconi/guid_generator'
 require 'marconi/exchange'
 require 'marconi/config'
 require 'marconi/envelope'
