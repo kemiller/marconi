@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name    = 'marconi'
-  s.version = '0.1.1'
+  s.version = '0.1.2'
   s.summary = 'Message-based distributed state updates for Active Record'
   s.description = 'Implements asychronous, distributed state broadcasting for ActiveModel-like objects.'
 
@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.homepage = 'https://github.com/kemiller/marconi'
 
   s.add_dependency 'bunny', '0.6.0'
-  s.add_dependency 'activesupport'
-  s.add_dependency 'uuidtools'
+  s.add_dependency 'activesupport', '>= 2.3'
+  s.add_dependency 'uuidtools', '>= 2.0'
   s.add_development_dependency 'mocha'
   s.add_development_dependency 'shoulda'
 
